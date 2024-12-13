@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Globe, Coins, Moon } from 'lucide-react'
+import { Globe, Coins, Moon, Bolt } from 'lucide-react'
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,7 @@ export function SettingsDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
-          <Globe className="h-4 w-4" />
+          <Bolt className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[200px]">
