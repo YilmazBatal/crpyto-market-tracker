@@ -45,6 +45,7 @@ const config: Config = {
   			ring: 'hsl(var(--ring))',
 			up: 'hsl(var(--up))',
 			down: 'hsl(var(--down))',
+			gradient: 'hsl(var(--gradient))',
   			chart: {
   				'1': 'hsl(var(--chart-1))',
   				'2': 'hsl(var(--chart-2))',
@@ -52,6 +53,7 @@ const config: Config = {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
+
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
