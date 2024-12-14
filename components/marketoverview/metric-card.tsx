@@ -3,10 +3,11 @@ import { SparklineChart } from ".././sparkline/sparkline-chart"
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface MetricCardProps {
+  name: string,
   data: { date: string; value: number }[]
 }
 
-export function MetricCard({ data }: MetricCardProps) {
+export function MetricCard({ data, name }: MetricCardProps) {
   const currentMarketCap = data[data.length - 1].value;
   const startMarketCap = data[0].value;
   const percentChange = ((currentMarketCap - startMarketCap) / startMarketCap) * 100;
@@ -21,7 +22,7 @@ export function MetricCard({ data }: MetricCardProps) {
   return (
     <Card className="rounded-3xl">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="font-medium">Market Cap (7d)</CardTitle>
+        <CardTitle className="font-medium">{name}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex grid grid-cols-1 sm:grid-cols-12 justify-between items-center">

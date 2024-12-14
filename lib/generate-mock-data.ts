@@ -40,8 +40,30 @@ const generateMockVolumeData = () => {
   return data;
 };
 
+const generateBtcData = () => {
+  const now = Date.now();
+  const oneDay = 24 * 60 * 60 * 1000;
+  const data = [];
+
+  // Start with a base market cap value
+  let marketCap = 90000; // $1 trillion
+
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(now - i * oneDay);
+    // Add some random fluctuation to the market cap
+    marketCap += (Math.random() - 0.5) * 5000; // +/- $50 billion max change per day
+    data.push({
+      date: date.toISOString().split('T')[0], // Format as YYYY-MM-DD
+      value: marketCap,
+    });
+  }
+
+  return data;
+};
+
 export const mockMarketCapData = generateMockData();
 export const mockMarketVolumeData = generateMockVolumeData();
+export const mockBTCdata = generateBtcData();
 
 export const mockTrendingCoinData = [
   {

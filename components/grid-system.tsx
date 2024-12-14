@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Skeleton } from "./ui/skeleton";
-import { mockMarketCapData, mockMarketVolumeData, mockTrendingCoinData } from "../lib/generate-mock-data";
+import { mockBTCdata, mockMarketCapData, mockMarketVolumeData, mockTrendingCoinData } from "../lib/generate-mock-data";
 import { TrendingCard } from "./marketoverview/trending-card";
 import { MetricCard } from "./marketoverview/metric-card";
 import { BitcoinChart } from "./marketoverview/bitcoin-chart";
@@ -46,8 +46,8 @@ export default function GridSystem() {
           {/* Home Page Card */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
             <div className="lg:col-span-4 space-y-5 h-full flex flex-col justify-center">
-              <MetricCard data={mockMarketCapData} />
-              <MetricCard data={mockMarketVolumeData} />
+              <MetricCard data={mockMarketCapData} name="Market Cap (7d)" />
+              <MetricCard data={mockMarketVolumeData} name="Volume (7d)" />
             </div>
             <div className="lg:col-span-4 space-y-5 h-full flex flex-col justify-center">
               <TrendingCard data={mockTrendingCoinData} name="Trending Coins 🔥" />
@@ -56,7 +56,7 @@ export default function GridSystem() {
               <TrendingCard data={mockTrendingCoinData} name="Top Gainers 🚀"/>
             </div>
             <div className="lg:col-span-6 space-y-5 h-full flex flex-col justify-center">
-              <BitcoinChart />
+              <BitcoinChart data={mockBTCdata} />
             </div>
             <div className="lg:col-span-3 space-y-5 h-full flex flex-col justify-center">
               <Skeleton className="h-full rounded-xl" />
