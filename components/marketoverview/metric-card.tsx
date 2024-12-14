@@ -32,7 +32,7 @@ export function MetricCard({ data, name }: MetricCardProps) {
                     {percentChange >= 0 ? <ChevronUp height={18}/> : <ChevronDown height={18}/>} {Math.abs(percentChange).toFixed(2)}%
                 </div>
             </div>
-            <div className="col-span-9 lg:col-span-6 h-[60px] mt-4 ">
+            <div className="col-span-9 lg:col-span-6 mt-4 h-[60px]">
                 <SparklineChart data={data} />
             </div>
         </div>

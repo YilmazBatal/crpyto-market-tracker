@@ -6,6 +6,8 @@ import { mockBTCdata, mockMarketCapData, mockMarketVolumeData, mockTrendingCoinD
 import { TrendingCard } from "./marketoverview/trending-card";
 import { MetricCard } from "./marketoverview/metric-card";
 import { BitcoinChart } from "./marketoverview/bitcoin-chart";
+import FearAndGreedIndex from "./FearAndGreedIndex";
+import DominanceCard from "./dominance-card";
 
 // Format Number
 const formatNumber = (number: number) => {
@@ -59,10 +61,10 @@ export default function GridSystem() {
               <BitcoinChart data={mockBTCdata} />
             </div>
             <div className="lg:col-span-3 space-y-5 h-full flex flex-col justify-center">
-              <Skeleton className="h-full rounded-xl" />
+              <FearAndGreedIndex />
             </div>
             <div className="lg:col-span-3 space-y-5 h-full flex flex-col justify-center">
-              <Skeleton className="h-full rounded-xl" />
+              <DominanceCard />
             </div>
           </div>
         </div>
