@@ -4,6 +4,12 @@ import { Bar, BarChart, CartesianGrid, Rectangle, XAxis } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Item } from "@radix-ui/react-dropdown-menu";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  ChevronRight,
+  MoveRight,
+} from "lucide-react";
 
 interface DominanceData {
   data: {
@@ -85,16 +91,26 @@ export default function DominanceCard({ data }: DominanceData) {
       <CardContent className="flex  items-center h-[100%] w-full mt-3 pb-0 mb-0">
         <div className="grid grid-cols-12 w-full ">
           <div className="col-span-12 flex items-center justify-between my-2 mx-5">
+            
             <img src={TopDomData[0].icon} width={28} height={28} alt="" />{" "}
-            <span className="font-bold"> %{TopDomData[0].dominance} </span>
+            <div className="flex">
+              <span className="font-bold"> %{TopDomData[0].dominance} </span>
+              <ChevronRight/>
+            </div>
           </div>
           <div className="col-span-12 flex items-center justify-between my-2 mx-5">
             <img src={TopDomData[1].icon} width={28} height={28} alt="" />{" "}
-            <span className="font-bold"> %{TopDomData[1].dominance} </span>
+            <div className="flex">
+              <span className="font-bold"> %{TopDomData[1].dominance} </span>
+              <ChevronRight />
+            </div>
           </div>
           <div className="col-span-12 flex items-center justify-between my-2 mx-5">
             <img src={TopDomData[2].icon} width={28} height={28} alt="" />{" "}
-            <span className="font-bold"> %{TopDomData[2].dominance} </span>
+            <div className="flex">
+              <span className="font-bold"> %{TopDomData[2].dominance} </span>
+              <ChevronRight />
+            </div>
           </div>
         </div>
       </CardContent>
