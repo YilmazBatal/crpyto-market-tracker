@@ -13,7 +13,8 @@ export function SparklineChart({ data }: { data: ChartData[] }) {
 
   // Calculate a slight padding (2%) for the top and bottom of the chart
   // const yDomainPadding = (maxValue - minValue) * 0;
-
+  console.log(data);
+  
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data}>
@@ -24,7 +25,7 @@ export function SparklineChart({ data }: { data: ChartData[] }) {
         <Line
           type="monotone"
           dataKey="value"
-          stroke= { data[0].value > data[6].value ? "hsl(var(--down))" : "hsl(var(--up))"}
+          stroke= { data[0].value < data[6].value ? "hsl(var(--down))" : "hsl(var(--up))"}
           strokeWidth={2}
           dot={false}
         />

@@ -1,22 +1,45 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { SparklineChart } from ".././sparkline/sparkline-chart"
-import { ChevronDown, ChevronUp } from "lucide-react";
+"use client"
 
-interface MetricCardProps {
-  data: { date: string; value: number }[]
+import { Card, CardContent } from "@/components/ui/card"
+import { SparklineChart } from "../sparkline/sparkline-chart"
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import { useEffect, useState } from "react"
+import { BitcoinData, fetchBTCData } from "@/lib/api"
+
+interface SparklineData {
+  date: string
+  value: number
 }
 
-export function BitcoinChart({ data }: MetricCardProps) {
-  const currentMarketCap = data[data.length - 1].value;
-  const startMarketCap = data[0].value;
-  const percentChange = ((currentMarketCap - startMarketCap) / startMarketCap) * 100;
+export function BitcoinChart() {
+  const [data, setData] = useState<BitcoinData | null>(null)
 
-  const formatMarketCap = (value: number) => new Intl.NumberFormat('en-US', {
+  useEffect(() => {
+    async function loadData() {
+      const btcData = await fetchBTCData()
+      setData(btcData)
+    }
+    loadData()
+  }, [])
+
+  if (!data) {
+    return <Card className="rounded-3xl h-[250px]"><CardContent className="p-6">Loading...</CardContent></Card>
+  }
+
+  const currentPrice = data.current_price
+  const sparklineData: SparklineData[] = data.sparkline_in_7d.price.map((price: any, index: number) => ({
+    date: new Date(Date.now() - (7 - index / 24) * 24 * 60 * 60 * 1000).toISOString(),
+    value: price,
+  }))
+  const startPrice = sparklineData[0].value
+  const percentChange = data.price_change_percentage_24h
+
+  const formatPrice = (value: number) => new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     notation: 'standard',
     maximumFractionDigits: 0
-  }).format(value);
+  }).format(value)
 
   return (
     <Card className="rounded-3xl h-[250px]">
@@ -28,7 +51,7 @@ export function BitcoinChart({ data }: MetricCardProps) {
               <div className="font-medium mb-3">
                 Bitcoin Chart (7d)
               </div>
-              <div className="text-4xl font-bold">{formatMarketCap(currentMarketCap)}</div>
+              <div className="text-4xl font-bold">{formatPrice(currentPrice)}</div>
               <div
                 className={`font-medium mt-3 flex items-center ${
                   percentChange >= 0 ? "text-up" : "text-down"
@@ -40,9 +63,10 @@ export function BitcoinChart({ data }: MetricCardProps) {
             </div>
             <div className="col-span-3 flex justify-end items-start">
               <img
-                src="https://assets.coingecko.com/coins/images/1/standard/bitcoin.png?1696501400"
+                src={data.image}
                 width={64}
-                alt=""
+                height={64}
+                alt="Bitcoin logo"
                 className="block"
               />
             </div>
@@ -50,11 +74,10 @@ export function BitcoinChart({ data }: MetricCardProps) {
   
           {/* Bottom Content */}
           <div className="col-span-12 h-[60px] w-full mt-4">
-            <SparklineChart data={data} />
+            <SparklineChart data={sparklineData} />
           </div>
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
-
