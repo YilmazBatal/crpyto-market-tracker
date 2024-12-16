@@ -120,11 +120,10 @@ export interface BitcoinData {
   };
 }
 
-export async function fetchBTCData(): Promise<BitcoinData | null> {
+export async function fetchBTCData(): Promise<BitcoinData | any> {
   try {
     const response = await fetch(
-      `${baseURL}/coins/markets?vs_currency=usd&ids=bitcoin&sparkline=true` ,
-      { next: { revalidate: 3600 } }
+      `${baseURL}/coins/markets?vs_currency=usd&ids=bitcoin&sparkline=true` , { next: { revalidate: 3600 } }
     );
 
     if (!response.ok) {
@@ -139,3 +138,32 @@ export async function fetchBTCData(): Promise<BitcoinData | null> {
   }
 }
 
+
+export interface CurrencyData {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  current_price: number;
+  market_cap: number;
+  market_cap_rank: number;
+  price_change_percentage_24h: number;
+}
+
+export async function fetchTopCurrencies(limit: number = 100): Promise<CurrencyData[]> {
+  try {
+    const response = await fetch(
+      `${baseURL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`, { next: { revalidate: 3600 } }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data as CurrencyData[];
+  } catch (error) {
+    console.error('Error fetching top currencies:', error);
+    return [];
+  }
+}

@@ -2,7 +2,7 @@
 
 import GridSystem from "@/components/grid-system";
 import GridSystemSkeleton from "@/components/grid-system-skeleton";
-import { FetchGlobalData } from "@/lib/api";
+import { FetchGlobalData, FetchTrendingData, FetchTopGainers } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -13,26 +13,32 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true); 
 
-
-  console.log("SFSAFSAFASFA");
   
   useEffect(() => {
     async function loadData() {
       setLoading(true);
-  
-      console.log("ASDBSAHJNFSAM");
-      
+
       try {
         // Fetch new data if cache is invalid
-        const globalData = await FetchGlobalData();
+        const [globalData, trendingData, gainerData] = await Promise.all([
+          FetchGlobalData(),
+          FetchTrendingData(),
+          FetchTopGainers(),
+        ]);
         
-        if (!globalData) throw new Error("API returned null data.");
+        if (!globalData || !trendingData) {
+          throw new Error("One of the API responses returned null data.");
+        }
         
-        setData({...globalData, loading});
+        // Merge the two datasets into a single structure
+        setData({
+          global: globalData,
+          trending: trendingData,
+          gainer: gainerData,
+        });
       } catch (error) {
-
         console.error(error);
-        
+        setError("Failed to fetch data.");
       } finally {
         setLoading(false);
       }
@@ -42,7 +48,9 @@ export default function Home() {
     loadData();
   }, []);
 
+  
   return (
+    
     <div className="relative min-h-screen">
       <div className="absolute inset-0 bg-gradient-to-b from-gradient via-background to-transparent" />
       <div className="container mx-auto px-4 max-w-[1200px] relative">
@@ -51,7 +59,8 @@ export default function Home() {
         {error && <div className="text-red-500">{error}</div>}
 
         {data ? (
-          <GridSystem data={data} loaded />
+          
+          <GridSystem data={data.global} trending={data.trending} gainer={data.gainer} loaded />
         ) : (
           <GridSystemSkeleton />
         )}

@@ -1,18 +1,14 @@
 "use client";
 
 import React from "react";
-import { Skeleton } from "./ui/skeleton";
-import {
-  mockBTCdata,
-  mockMarketCapData,
-  mockMarketVolumeData,
-  mockTrendingCoinData,
-} from "../lib/generate-mock-data";
 import { TrendingCard } from "./marketoverview/trending-card";
+import { TopGainerCard } from "./marketoverview/top-gainer-card";
 import { MetricCard } from "./marketoverview/metric-card";
 import { BitcoinChart } from "./marketoverview/bitcoin-chart";
 import FearAndGreedIndex from "./FearAndGreedIndex";
 import DominanceCard from "./dominance-card";
+import { formatPrice } from "@/lib/utils";
+import { CurrencyList } from "./currency-list";
 
 interface MarketData {
   data: {
@@ -24,34 +20,53 @@ interface MarketData {
       usd: number;
     };
     market_cap_percentage: {
-      ada: number,
-      bnb: number,
-      btc: number,
-      doge: number,
-      eth: number,
-      sol: number,
-      steth: number,
-      usdc: number,
-      usdt: number,
-      xrp: number,
+      ada: number;
+      bnb: number;
+      btc: number;
+      doge: number;
+      eth: number;
+      sol: number;
+      steth: number;
+      usdc: number;
+      usdt: number;
+      xrp: number;
     };
   };
+  trending: {
+    coins: {
+      item: {
+        id: string;
+        coin_id: number;
+        name: string;
+        symbol: string;
+        thumb: string;
+        small: string;
+        slug: string;
+        data: {
+          price: number;
+          price_change_percentage_24h: {
+            usd: number;
+          };
+        };
+      };
+    }[];
+  };
+  gainer: {
+    name: string;
+    symbol: string;
+    image: string;
+    price: number;
+    percent_change_24h: number;
+  }[];
   loaded: boolean;
 }
 
-// Format Number
-const formatNumber = (number: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    notation: "compact",
-    maximumFractionDigits: 2,
-  }).format(number);
-};
-
-export default function GridSystem({ data, loaded }: MarketData) {
-  console.log(data);
-
+export default function GridSystem({
+  data,
+  trending,
+  gainer,
+  loaded,
+}: MarketData) {
   const MarketCapData = {
     market_data: data.total_market_cap.usd,
     market_data_change: data.market_cap_change_percentage_24h_usd,
@@ -77,9 +92,64 @@ export default function GridSystem({ data, loaded }: MarketData) {
     usdc_dom: data.market_cap_percentage.usdc,
   };
 
+  const TrendingCoins = {
+    name: "Trending Coins 🔥",
+    coin_1: trending?.coins?.[0]?.item
+      ? {
+          coin_id: trending.coins[0].item.coin_id,
+          name: trending.coins[0].item.name,
+          symbol: trending.coins[0].item.symbol,
+          thumb: trending.coins[0].item.thumb,
+          data: {
+            price: trending.coins[0].item.data.price,
+            price_change_percentage_24h: {
+              usd: trending.coins[0].item.data.price_change_percentage_24h.usd,
+            },
+          },
+        }
+      : null,
+
+    coin_2: trending?.coins?.[1]?.item
+      ? {
+          coin_id: trending.coins[1].item.coin_id,
+          name: trending.coins[1].item.name,
+          symbol: trending.coins[1].item.symbol,
+          thumb: trending.coins[1].item.thumb,
+          data: {
+            price: trending.coins[1].item.data.price,
+            price_change_percentage_24h: {
+              usd: trending.coins[1].item.data.price_change_percentage_24h.usd,
+            },
+          },
+        }
+      : null,
+
+    coin_3: trending?.coins?.[2]?.item
+      ? {
+          coin_id: trending.coins[2].item.coin_id,
+          name: trending.coins[2].item.name,
+          symbol: trending.coins[2].item.symbol,
+          thumb: trending.coins[2].item.thumb,
+          data: {
+            price: trending.coins[2].item.data.price,
+            price_change_percentage_24h: {
+              usd: trending.coins[2].item.data.price_change_percentage_24h.usd,
+            },
+          },
+        }
+      : null,
+  };
+
+  const TopGainerCoins = {
+    name: "Top Gainers 🚀",
+    coin_1: gainer[0] || null,
+    coin_2: gainer[1] || null,
+    coin_3: gainer[2] || null,
+  };
+
   return (
-    <section>
-      <div className="my-5">
+    <section className="pt-5">
+      <div>
         {/* Home Page Title */}
         <span className="text-4xl font-bold text-primary">
           {" "}
@@ -88,13 +158,13 @@ export default function GridSystem({ data, loaded }: MarketData) {
         <p className="text-muted my-4">
           The global cryptocurrency market cap today is{" "}
           <span className="font-bold">
-            {"formatNumber(marketData.marketCap)"}
+            {formatPrice(data.total_market_cap.usd)}$
           </span>
           , a{" "}
           <span
-            className={'marketData.volumeChange >= 0 ? "text-up" : "text-down"'}
+            className={data.market_cap_change_percentage_24h_usd > 0 ? "text-up font-bold" : "text-down font-bold"}
           >
-            {"marketData.volumeChange.toFixed(2)"}%
+            {data.market_cap_change_percentage_24h_usd.toFixed(2)}%
           </span>{" "}
           change in the last 24 hours.{" "}
           <span className="underline">Read more</span>
@@ -107,16 +177,13 @@ export default function GridSystem({ data, loaded }: MarketData) {
             <MetricCard data={MarketVolumeData} />
           </div>
           <div className="lg:col-span-4 space-y-5 h-full flex flex-col justify-center">
-            <TrendingCard
-              data={mockTrendingCoinData}
-              name="Trending Coins 🔥"
-            />
+            <TrendingCard {...TrendingCoins} />
           </div>
           <div className="lg:col-span-4 space-y-5 h-full flex flex-col justify-center">
-            <TrendingCard data={mockTrendingCoinData} name="Top Gainers 🚀" />
+            <TopGainerCard {...TopGainerCoins} />
           </div>
           <div className="lg:col-span-6 space-y-5 h-full flex flex-col justify-center">
-            <BitcoinChart data={mockBTCdata} />
+            <BitcoinChart />
           </div>
           <div className="lg:col-span-3 space-y-5 h-full flex flex-col justify-center">
             <FearAndGreedIndex />
@@ -124,6 +191,11 @@ export default function GridSystem({ data, loaded }: MarketData) {
           <div className="lg:col-span-3 space-y-5 h-full flex flex-col justify-center">
             <DominanceCard data={MarketDominanceData} />
           </div>
+        </div>
+        {/* List */}
+        <div>
+          <h1 className="text-4xl font-bold my-10">Top Cryptocurrencies by Market Cap</h1>
+          <CurrencyList />
         </div>
       </div>
     </section>
