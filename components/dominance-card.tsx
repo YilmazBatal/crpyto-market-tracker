@@ -1,171 +1,102 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle } from "lucide-react";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "./ui/chart";
-import { Label, PolarRadiusAxis, RadialBar, RadialBarChart, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, CartesianGrid, Rectangle, XAxis } from "recharts";
 
-interface FearGreedData {
-  value: string;
-  value_classification: string;
-  timestamp: string;
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Item } from "@radix-ui/react-dropdown-menu";
+
+interface DominanceData {
+  data: {
+    btc_dom: number;
+    eth_dom: number;
+    xrp_dom: number;
+    usdt_dom: number;
+    sol_dom: number;
+    bnb_dom: number;
+    doge_dom: number;
+    ada_dom: number;
+    steth_dom: number;
+    usdc_dom: number;
+  };
 }
 
-const chartData = [{greed: 50, fear: 50 }];
+export default function DominanceCard({ data }: DominanceData) {
+  const currencyIcons: { [key: string]: string } = {
+    btc_dom:
+      "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png?1696501400", // Path to Bitcoin icon
+    eth_dom:
+      "https://assets.coingecko.com/coins/images/279/standard/ethereum.png?1696501628", // Path to Ethereum icon
+    xrp_dom:
+      "https://assets.coingecko.com/coins/images/44/standard/xrp-symbol-white-128.png?1696501442", // Path to Ripple icon
+    usdt_dom:
+      "https://assets.coingecko.com/coins/images/325/standard/Tether.png?1696501661", // Path to Tether icon
+    sol_dom:
+      "https://assets.coingecko.com/coins/images/4128/standard/solana.png?1718769756", // Path to Solana icon
+    bnb_dom:
+      "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png?1696501970", // Path to Binance Coin icon
+    doge_dom:
+      "https://assets.coingecko.com/coins/images/5/standard/dogecoin.png?1696501409", // Path to Dogecoin icon
+    ada_dom:
+      "https://assets.coingecko.com/coins/images/975/standard/cardano.png?1696502090", // Path to Cardano icon
+    steth_dom:
+      "https://assets.coingecko.com/coins/images/13442/standard/steth_logo.png?1696513206", // Path to stETH icon
+    usdc_dom:
+      "https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694", // Path to USD Coin icon
+  };
 
-const chartConfig = {
-  Greed: {
-    label: "Greed",
-    color: "hsl(var(--up))",
-  },
-  Fear: {
-    label: "Fear",
-    color: "hsl(var(--down))",
-  },
-} satisfies ChartConfig;
+  const dominanceData: DominanceData = {
+    data: {
+      btc_dom: data.btc_dom,
+      eth_dom: data.eth_dom,
+      xrp_dom: data.xrp_dom,
+      usdt_dom: data.usdt_dom,
+      sol_dom: data.sol_dom,
+      bnb_dom: data.bnb_dom,
+      doge_dom: data.doge_dom,
+      ada_dom: data.ada_dom,
+      steth_dom: data.steth_dom,
+      usdc_dom: data.usdc_dom,
+    },
+  };
 
-export default function DominanceCard() {
-  const [data, setData] = useState<FearGreedData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Get Top 5 Dominance
+  const dominanceArray = Object.entries(dominanceData.data);
+  const sortedDominance = dominanceArray.sort(([, a], [, b]) => b - a);
+  const top5Dominance = sortedDominance.slice(0, 5);
+  const top5Formatted = top5Dominance.map(([key, value]) => ({
+    name: key,
+    dominance: value.toFixed(2), // Format dominance to 2 decimal places
+  }));
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://api.alternative.me/fng/");
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const result = await response.json();
-        setData(result.data[0]);
-      } catch (err) {
-        setError("Failed to fetch Fear and Greed Index");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Crypto Fear & Greed Index</CardTitle>
-          <CardDescription>Loading latest data...</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[100%] w-full" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className="w-full max-w-md rounded-3xl">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-red-500" />
-            Error
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{error}</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!data) return null;
-
-  if (parseInt(data.value) /*78*/ >= 50) {
-    chartData[0].greed = parseInt(data.value);
-    chartData[0].fear = 100 - chartData[0].greed;
-  } else if (parseInt(data.value) /*22*/ < 50) {
-    chartData[0].fear = parseInt(data.value);
-    chartData[0].greed = 100 - chartData[0].fear;
-  }
+  const TopDomData = top5Formatted.map((item) => ({
+    currency: item.name,
+    dominance: item.dominance,
+    icon:
+      currencyIcons[item.name] ||
+      "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png?1696501400", // Default icon is BTC
+  }));
 
   return (
-    <Card className="flex flex-col rounded-3xl h-[250px] pb-0 mb-0 ">
+    <Card className="flex flex-col rounded-3xl h-[250px] p-0 mb-0 ">
       <CardHeader className="items-center mb-0 pb-0">
-        <CardTitle className="font-medium">Fear And Greed Index</CardTitle>
-        <CardDescription className="font-bold text-primary text-2xl">{data.value_classification}</CardDescription>
+        <CardTitle className="font-medium">Market Dominance</CardTitle>
+        <div className="font-bold text-primary text-2xl">Top 3 Dominator</div>
       </CardHeader>
-      <CardContent className="flex  items-center h-[100%] mt-3 pb-0 mb-0">
-          <ChartContainer
-            config={chartConfig}
-            className="mx-auto mb-0 pb-0 aspect-square w-full h-full"
-          >
-            <RadialBarChart
-              data={chartData}
-              endAngle={180}
-              innerRadius={80}
-              outerRadius={130}
-              className="pb-0 mb-0"
-            >
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-              <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}> 
-                <Label className="pb-0 mb-0"
-                  content={({ viewBox }) => {
-                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      return (
-                        <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) - 16}
-                            className="fill-foreground text-2xl font-bold"
-                          >
-                            {parseInt(data.value).toLocaleString()}
-                          </tspan>
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 4}
-                            className="fill-muted-foreground"
-                          >
-                            {data.value_classification}
-                          </tspan>
-                        </text>
-                      );
-                    }
-                  }}
-                />
-              </PolarRadiusAxis>
-              <RadialBar
-                dataKey="fear"
-                fill="var(--color-Fear)"
-                stackId="a"
-                cornerRadius={1}
-                className="stroke-transparent stroke-2 pb-0 mb-0"
-              />
-              <RadialBar
-                dataKey="greed"
-                stackId="a"
-                cornerRadius={1}
-                fill="var(--color-Greed)"
-                className="stroke-transparent stroke-2 pb-0 mb-0"
-              />
-            </RadialBarChart>
-          </ChartContainer>
+      <CardContent className="flex  items-center h-[100%] w-full mt-3 pb-0 mb-0">
+        <div className="grid grid-cols-12 w-full ">
+          <div className="col-span-12 flex items-center justify-between my-2 mx-5">
+            <img src={TopDomData[0].icon} width={28} height={28} alt="" />{" "}
+            <span className="font-bold"> %{TopDomData[0].dominance} </span>
+          </div>
+          <div className="col-span-12 flex items-center justify-between my-2 mx-5">
+            <img src={TopDomData[1].icon} width={28} height={28} alt="" />{" "}
+            <span className="font-bold"> %{TopDomData[1].dominance} </span>
+          </div>
+          <div className="col-span-12 flex items-center justify-between my-2 mx-5">
+            <img src={TopDomData[2].icon} width={28} height={28} alt="" />{" "}
+            <span className="font-bold"> %{TopDomData[2].dominance} </span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
