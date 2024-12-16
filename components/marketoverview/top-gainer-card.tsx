@@ -1,31 +1,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatPrice } from "@/lib/utils";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import Link from "next/link";
 
-// CoinData Interface to define the structure of the coin data
-interface CoinData {
-  coin_id: number;
+interface Coin {
   name: string;
   symbol: string;
-  thumb: string;
-  data: {
-    price: number;
-    price_change_percentage_24h: {
-      usd: number;
-    };
-  };
+  image: string;
+  price: number;
+  percent_change_24h: number;  // Changed from price_change_percentage_24h
 }
 
-// TrendingCoinsProps to define the props structure
-interface TrendingCoinsProps {
+interface GainingCoinsProps {
   name: string;
-  coin_1: CoinData | null;
-  coin_2: CoinData | null;
-  coin_3: CoinData | null;
+  coin_1: Coin | null;
+  coin_2: Coin | null;
+  coin_3: Coin | null;
 }
 
-export function TrendingCard({name ,coin_1, coin_2, coin_3 }: TrendingCoinsProps) {
+export function TopGainerCard({name, coin_1, coin_2, coin_3}: GainingCoinsProps) {
   const formatMarketCap = (value: number) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -46,33 +39,35 @@ export function TrendingCard({name ,coin_1, coin_2, coin_3 }: TrendingCoinsProps
         </div>
       </CardHeader>
       <CardContent className="px-4">
-        {coins.map((myItem, index) => (
-          <Link key={index} href={"/"} /*href={`/coin/${myItem?.slug}`} */>
+        {coins.map((coin, index) => (
+          <Link key={index} href={`/coin/${coin?.symbol}`}>
             <div className="flex justify-between hover:bg-accent items-center rounded-2xl my-3 p-3">
               <div className="flex items-center">
                 <img
-                  src={myItem?.thumb}
-                  alt={myItem?.name}
+                  src={coin?.image}
+                  alt={coin?.name}
                   className="w-8 h-8 rounded-full mr-2"
                 />
-                <div>{myItem?.name}</div>
+                <div>{coin?.name}</div>
               </div>
               <div className="flex items-center space-x-4">
-                <div>${formatPrice(myItem?.data.price)}</div>
-                <div
-                  className={`${
-                    myItem?.data.price_change_percentage_24h.usd > 0
-                      ? "text-up"
-                      : "text-down"
-                  } flex items-center`}
-                >
-                  {myItem?.data.price_change_percentage_24h.usd > 0 ? (
-                    <ChevronUp height={18} />
-                  ) : (
-                    <ChevronDown height={18} />
-                  )}
-                  {myItem?.data.price_change_percentage_24h.usd.toFixed(2)}%{" "}
-                </div>
+                <div>${formatPrice(coin?.price)}</div>
+                {coin?.percent_change_24h != null && (
+                  <div
+                    className={`${
+                      coin.percent_change_24h > 0
+                        ? "text-up"
+                        : "text-down"
+                    } flex items-center`}
+                  >
+                    {coin.percent_change_24h > 0 ? (
+                      <ChevronUp height={18} />
+                    ) : (
+                      <ChevronDown height={18} />
+                    )}
+                    {coin.percent_change_24h.toFixed(2)}%{" "}
+                  </div>
+                )}
               </div>
             </div>
           </Link>
