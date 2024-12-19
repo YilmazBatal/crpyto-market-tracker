@@ -192,11 +192,6 @@ export default function GridSystem({
             <DominanceCard data={MarketDominanceData} />
           </div>
         </div>
-        {/* List */}
-        <div>
-          <h1 className="text-4xl font-bold my-10">Top Cryptocurrencies by Market Cap</h1>
-          <CurrencyList />
-        </div>
       </div>
     </section>
   );

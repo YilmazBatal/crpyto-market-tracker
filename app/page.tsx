@@ -1,5 +1,6 @@
 'use client';
 
+import { CurrencyList } from "@/components/currency-list";
 import GridSystem from "@/components/grid-system";
 import GridSystemSkeleton from "@/components/grid-system-skeleton";
 import { FetchGlobalData, FetchTrendingData, FetchTopGainers } from "@/lib/api";
@@ -64,7 +65,7 @@ export default function Home() {
         ) : (
           <GridSystemSkeleton />
         )}
-
+        <CurrencyList />
       </div>
     </div>
   );

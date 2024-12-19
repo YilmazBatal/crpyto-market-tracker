@@ -1,52 +1,86 @@
-import { image } from "motion/react-client";
-
 const baseURL = "https://api.coingecko.com/api/v3";
+const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+interface CacheItem<T> {
+  data: T;
+  timestamp: number;
+}
+
+function getFromCache<T>(key: string): T | null {
+  const cachedItem = localStorage.getItem(key);
+  if (cachedItem) {
+    const { data, timestamp }: CacheItem<T> = JSON.parse(cachedItem);
+    if (Date.now() - timestamp < CACHE_DURATION) {
+      return data;
+    }
+  }
+  return null;
+}
+
+function setToCache<T>(key: string, data: T): void {
+  const cacheItem: CacheItem<T> = {
+    data,
+    timestamp: Date.now(),
+  };
+  localStorage.setItem(key, JSON.stringify(cacheItem));
+}
 
 export async function FetchGlobalData(): Promise<any> {
+  const cacheKey = 'globalData';
+  const cachedData = getFromCache<any>(cacheKey);
+  
+  if (cachedData) {
+    return cachedData;
+  }
+
   try {
-    const response = await fetch(`${baseURL}/global`, {next : {revalidate : 3600}} );
+    const response = await fetch(`${baseURL}/global`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    // Parse the response JSON
     const result = await response.json();
-    
 
-    // Check if `data` exists in the response
     if (!result.data) {
       throw new Error("API response does not contain `data` property.");
     }
 
-    return result.data; // Return the actual global data
+    setToCache(cacheKey, result.data);
+    return result.data;
   } catch (error) {
     console.error("Failed to fetch global data:", error);
-    return null; // Ensure null is returned if there's an error
+    return null;
   }
 }
 
 export async function FetchTrendingData(): Promise<any> {
+  const cacheKey = 'trendingData';
+  const cachedData = getFromCache<any>(cacheKey);
+  
+  if (cachedData) {
+    return cachedData;
+  }
+
   try {
-    const response = await fetch(`${baseURL}/search/trending`, { next: { revalidate: 3600 } });
+    const response = await fetch(`${baseURL}/search/trending`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const result = await response.json();
-    // console.log("Trending Data Result:", JSON.stringify(result, null, 2)); // Debug response
 
-    // Accessing the 'coins' property in the result
     if (!result || !result.coins) {
       throw new Error("API response does not contain `coins` property.");
     }
-    console.log("TOP TRENDS : ", result.coins);
-    
-    return { coins: result.coins };
+
+    const data = { coins: result.coins };
+    setToCache(cacheKey, data);
+    return data;
   } catch (error) {
     console.error("Failed to fetch trending coins data:", error);
-    return null; // Handle error gracefully
+    return null;
   }
 }
 
@@ -59,29 +93,31 @@ interface Coin {
   price_change_percentage_24h: number;
 }
 
-
-
 export async function FetchTopGainers(): Promise<any> {
+  const cacheKey = 'topGainers';
+  const cachedData = getFromCache<any>(cacheKey);
+  
+  if (cachedData) {
+    return cachedData;
+  }
+
   try {
-    const response = await fetch(`${baseURL}/coins/markets?vs_currency=usd&order=percent_change_24h_desc`, {next : {revalidate : 3600}} );
+    const response = await fetch(`${baseURL}/coins/markets?vs_currency=usd&order=percent_change_24h_desc`);
     
     const data: Coin[] = await response.json();
     
-    // Sort the coins by percentage change in the last 24 hours (descending)
     const sortedByGains = data.sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h);
 
-    // Output the top 5 gainers
     const topGainers = sortedByGains.slice(0, 5).map((coin) => ({
       name: coin.name,
       image: coin.image,
       symbol: coin.symbol,
       price: coin.current_price,
       percent_change_24h: coin.price_change_percentage_24h,
-
     }));
-    console.log('Top Gainers:', topGainers);
-    return topGainers;
 
+    setToCache(cacheKey, topGainers);
+    return topGainers;
   } catch (error) {
     console.error('Error fetching data:', error);
     return null;
@@ -120,10 +156,17 @@ export interface BitcoinData {
   };
 }
 
-export async function fetchBTCData(): Promise<BitcoinData | any> {
+export async function fetchBTCData(): Promise<BitcoinData | null> {
+  const cacheKey = 'btcData';
+  const cachedData = getFromCache<BitcoinData>(cacheKey);
+  
+  if (cachedData) {
+    return cachedData;
+  }
+
   try {
     const response = await fetch(
-      `${baseURL}/coins/markets?vs_currency=usd&ids=bitcoin&sparkline=true` , { next: { revalidate: 3600 } }
+      `${baseURL}/coins/markets?vs_currency=usd&ids=bitcoin&sparkline=true`
     );
 
     if (!response.ok) {
@@ -131,39 +174,12 @@ export async function fetchBTCData(): Promise<BitcoinData | any> {
     }
 
     const data = await response.json();
-    return data[0] as BitcoinData;
+    const btcData = data[0] as BitcoinData;
+    setToCache(cacheKey, btcData);
+    return btcData;
   } catch (error) {
     console.error('Error fetching BTC data:', error);
     return null;
   }
 }
 
-
-export interface CurrencyData {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: number;
-  market_cap: number;
-  market_cap_rank: number;
-  price_change_percentage_24h: number;
-}
-
-export async function fetchTopCurrencies(limit: number = 100): Promise<CurrencyData[]> {
-  try {
-    const response = await fetch(
-      `${baseURL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`, { next: { revalidate: 3600 } }
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data as CurrencyData[];
-  } catch (error) {
-    console.error('Error fetching top currencies:', error);
-    return [];
-  }
-}

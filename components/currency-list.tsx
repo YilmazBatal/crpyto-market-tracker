@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { fetchTopCurrencies, CurrencyData } from '@/lib/api'
+import { fetchTopCurrencies, CurrencyData } from '@/lib/currency-api'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ChevronDown, ChevronUp } from 'lucide-react'
