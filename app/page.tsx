@@ -1,8 +1,8 @@
 'use client';
 
 import { CurrencyList } from "@/components/currency-list";
-import GridSystem from "@/components/grid-system";
-import GridSystemSkeleton from "@/components/grid-system-skeleton";
+import GridSystem from "@/components/marketoverview/grid-system";
+import GridSystemSkeleton from "@/components/marketoverview/grid-system-skeleton";
 import { FetchGlobalData, FetchTrendingData, FetchTopGainers } from "@/lib/api";
 import { useEffect, useState } from "react";
 

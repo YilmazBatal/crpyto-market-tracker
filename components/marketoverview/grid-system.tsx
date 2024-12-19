@@ -1,14 +1,13 @@
 "use client";
 
 import React from "react";
-import { TrendingCard } from "./marketoverview/trending-card";
-import { TopGainerCard } from "./marketoverview/top-gainer-card";
-import { MetricCard } from "./marketoverview/metric-card";
-import { BitcoinChart } from "./marketoverview/bitcoin-chart";
+import { formatPrice } from "@/lib/utils";
+import { MetricCard } from "./metric-card";
+import { TrendingCard } from "./trending-card";
+import { TopGainerCard } from "./top-gainer-card";
+import { BitcoinChart } from "./bitcoin-chart";
 import FearAndGreedIndex from "./FearAndGreedIndex";
 import DominanceCard from "./dominance-card";
-import { formatPrice } from "@/lib/utils";
-import { CurrencyList } from "./currency-list";
 
 interface MarketData {
   data: {
