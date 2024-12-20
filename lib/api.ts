@@ -1,29 +1,31 @@
 const baseURL = "https://api.coingecko.com/api/v3";
 const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
 
+// ****************** CACHING ******************
+
 interface CacheItem<T> {
   data: T;
   timestamp: number;
 }
 
+const cache: Record<string, CacheItem<any>> = {};
+
 function getFromCache<T>(key: string): T | null {
-  const cachedItem = localStorage.getItem(key);
-  if (cachedItem) {
-    const { data, timestamp }: CacheItem<T> = JSON.parse(cachedItem);
-    if (Date.now() - timestamp < CACHE_DURATION) {
-      return data;
-    }
+  const cachedItem = cache[key];
+  if (cachedItem && Date.now() - cachedItem.timestamp < CACHE_DURATION) {
+    return cachedItem.data;
   }
   return null;
 }
 
 function setToCache<T>(key: string, data: T): void {
-  const cacheItem: CacheItem<T> = {
+  cache[key] = {
     data,
     timestamp: Date.now(),
   };
-  localStorage.setItem(key, JSON.stringify(cacheItem));
 }
+
+// ****************** MARKET DATA ******************
 
 export async function FetchGlobalData(): Promise<any> {
   const cacheKey = 'globalData';
@@ -54,6 +56,8 @@ export async function FetchGlobalData(): Promise<any> {
   }
 }
 
+// ****************** TRENDING  ******************
+
 export async function FetchTrendingData(): Promise<any> {
   const cacheKey = 'trendingData';
   const cachedData = getFromCache<any>(cacheKey);
@@ -83,6 +87,8 @@ export async function FetchTrendingData(): Promise<any> {
     return null;
   }
 }
+
+// ****************** TOP GAINERS ******************
 
 interface Coin {
   coin_id: string;
@@ -123,6 +129,9 @@ export async function FetchTopGainers(): Promise<any> {
     return null;
   }
 }
+
+
+// ****************** BTC DATA ******************
 
 export interface BitcoinData {
   id: string;
@@ -183,3 +192,61 @@ export async function fetchBTCData(): Promise<BitcoinData | null> {
   }
 }
 
+// ****************** DETAILS ******************
+
+export interface CryptoDetailData {
+  id: string;
+  symbol: string;
+  name: string;
+  image: {
+    large: string;
+  };
+  market_data: {
+    current_price: {
+      usd: number;
+    };
+    price_change_percentage_24h: number;
+    market_cap: {
+      usd: number;
+    };
+    total_volume: {
+      usd: number;
+    };
+    high_24h: {
+      usd: number;
+    };
+    low_24h: {
+      usd: number;
+    };
+    circulating_supply: number;
+    total_supply: number;
+    max_supply: number;
+  };
+  description: {
+    en: string;
+  };
+}
+
+export async function fetchCryptoDetail(id: string): Promise<CryptoDetailData | null> {
+  const cacheKey = `cryptoDetail_${id}`;
+  const cachedData = getFromCache<CryptoDetailData>(cacheKey);
+  
+  if (cachedData) {
+    return cachedData;
+  }
+
+  try {
+    const response = await fetch(`${baseURL}/coins/${id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    setToCache(cacheKey, data);
+    return data as CryptoDetailData;
+  } catch (error) {
+    console.error(`Error fetching detail data for ${id}:`, error);
+    return null;
+  }
+}

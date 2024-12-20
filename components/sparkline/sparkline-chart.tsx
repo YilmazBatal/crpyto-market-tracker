@@ -25,7 +25,7 @@ export function SparklineChart({ data }: { data: ChartData[] }) {
         <Line
           type="monotone"
           dataKey="value"
-          stroke= { data[0].value < data[6].value ? "hsl(var(--down))" : "hsl(var(--up))"}
+          stroke= { data[0].value > data[data.length - 1].value ? "hsl(var(--down))" : "hsl(var(--up))"}
           strokeWidth={2}
           dot={false}
         />

@@ -16,7 +16,7 @@ import { User, Settings, CreditCard, LogOut } from "lucide-react";
 const mockUser = {
   name: "John Doe",
   email: "john@example.com",
-  avatar: "/avatars/01.png",
+  avatar: "https://cdn-icons-png.freepik.com/512/147/147142.png",
 };
 
 export function UserNav() {

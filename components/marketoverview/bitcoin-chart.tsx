@@ -54,7 +54,7 @@ export function BitcoinChart() {
               <div className="text-4xl font-bold">{formatPrice(currentPrice)}</div>
               <div
                 className={`font-medium mt-3 flex items-center ${
-                  percentChange >= 0 ? "text-up" : "text-down"
+                  sparklineData[0].value <= sparklineData[sparklineData.length - 1].value ? "text-down" : "text-down"
                 }`}
               >
                 {percentChange >= 0 ? <ChevronUp height={18} /> : <ChevronDown height={18} />}{" "}
